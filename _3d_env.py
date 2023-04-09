@@ -2,6 +2,12 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 
 from math import * 
+import math as mth
+
+
+#vector fields
+from vector_fields import _3d_vector_field as _3dvf
+
 
 # Globals
 windowWidth = 800
@@ -34,38 +40,55 @@ def polar_to_cartesian(r, theta, phi):
 def draw_vector(x, y, z, r, g, b, size):
 
     glColor3f(r, g, b)
+    scale=2.0
+    scale_=1/100.0
 
-    glBegin(GL_LINES)
-    glVertex3f(0.0, 0.0, 0.0)  # start point at origin
-    glVertex3f(x, y, z)        # end point at (x, y, z)
-    glEnd()
+    for i in range(_3dvf.N):
+        for j in range(_3dvf.N):
+            for k in range(_3dvf.N):
+                [x,y,z]=scale_*_3dvf.vectors[i,j,k] + [i/scale, j/scale, k/scale]
+                #[i_,j_,k_]= [i,j,k]
+
+
+              
+
+                glBegin(GL_LINES)
+                glVertex3f(i/scale, j/scale, k/scale)        # start point at origin
+
+                #print(i/scale_, j/scale_, k/scale_)
+                glVertex3f(x, y, z)        # end point at (x, y, z)
+                glEnd()
+
+                glBegin(GL_POINTS)
+                glVertex3f(i/scale, j/scale, k/scale)  # set point coordinates
+                glEnd()
+                
+    
+
+                [r,theta,phi]=cartesian_to_polar(x,y,z)
+
     
     
+                #Draw arrowhead
 
-    [r,theta,phi]=cartesian_to_polar(x,y,z)
+                #glRotatef(mth.atan2(y, x) * 180 /mth. pi, 0, 0, 1)
 
-    
-    
-    #Draw arrowhead
+                r=r-size
+                phi1=phi-pi/20.0
+                phi2=phi+pi/20.0
 
-    #glRotatef(mth.atan2(y, x) * 180 /mth. pi, 0, 0, 1)
+                [x1,y1,z1]= polar_to_cartesian(r,theta, phi1)
+                [x2,y2,z2]= polar_to_cartesian(r,theta, phi2)
 
-    r=r-size
-    phi1=phi-pi/20.0
-    phi2=phi+pi/20.0
+                glPushMatrix()
+                glTranslatef(size/10.0,size/10.0,size/10.0)
+                glBegin(GL_TRIANGLES)
+                glVertex3f(x, y, z)
+                glVertex3f(x1,y1,z1)
+                glVertex3f(x2,y2,z2)
+                glEnd()
 
-    [x1,y1,z1]= polar_to_cartesian(r,theta, phi1)
-    [x2,y2,z2]= polar_to_cartesian(r,theta, phi2)
-
-    glPushMatrix()
-    glTranslatef(size/10.0,size/10.0,size/10.0)
-    glBegin(GL_TRIANGLES)
-    glVertex3f(x, y, z)
-    glVertex3f(x1,y1,z1)
-    glVertex3f(x2,y2,z2)
-    glEnd()
-
-    glPopMatrix()
+                glPopMatrix()
    
 
 
